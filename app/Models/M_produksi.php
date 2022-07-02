@@ -39,9 +39,11 @@ class M_produksi extends Model
     //MENU TENAGA KERJA
     public function getdataTenagaKerja()
     {
-        $query = $this->db->query("SELECT DISTINCT id_operation, tenaga_kerja.jenis_tenaga_kerja FROM operation_list INNER JOIN tenaga_kerja ON tenaga_kerja.id_tenaga_kerja = operation_list.id_tenaga_kerja");
+        $query = $this->db->query("SELECT DISTINCT id_operation, tenaga_kerja.id_tenaga_kerja,tenaga_kerja.jenis_tenaga_kerja FROM operation_list INNER JOIN tenaga_kerja ON tenaga_kerja.id_tenaga_kerja = operation_list.id_tenaga_kerja");
         return $query->getResultArray();
     }
+
+    
 
     //MENU TENAGA KERJA
     public function getdataTenagaKerjaList()
@@ -373,12 +375,6 @@ class M_produksi extends Model
             return true;
         }
       
-
-        $error = $this->db->error();
-        print_r($error);
-
-
-        return $result->getRowArray();
     }
 
     // public function getIDBahan($idbom)
@@ -686,6 +682,7 @@ class M_produksi extends Model
     public function getdataBiayaBahan()
     {
         return $this->db->table('biaya_bahan')->get()->getResultArray();
+       
     }
 
     public function saveBiayaBahan($data)
@@ -759,6 +756,12 @@ class M_produksi extends Model
         } else {
             return false;
         }
+    }
+
+    public function populatedJadwal()
+    {
+
+        return $this->db->table('jadwal_produksi')->get()->getResultArray();
     }
 
     public function verifyNamaBahanBom($idbom)
@@ -1179,19 +1182,13 @@ class M_produksi extends Model
 
     public function getdataOperationList()
     {
-        $builder = $this->db->table('operation_list');
-        $builder->selectMin('id_operation', 'id_operation');
-        $builder->select('id_operation, nama_produk, quantity');
-        $builder->groupBy('id_operation');
-        $result = $builder->get();
-        return $result->getResultArray();
+        $query = $this->db->query("SELECT DISTINCT nama_produk, id_operation, quantity, tenaga_kerja.jenis_tenaga_kerja FROM operation_list INNER JOIN tenaga_kerja ON tenaga_kerja.id_tenaga_kerja = operation_list.id_tenaga_kerja");
+        return $query->getResultArray();
     }
 
     public function union_idoperation()
     {
-        $query = $this->db->query("SELECT MIN(id_operation) AS id_operation
-        FROM operation_list
-        GROUP BY id_operation");
+        $query = $this->db->query("SELECT DISTINCT id_operation FROM operation_list");
         return $query->getResultArray();
     }
 
@@ -1214,6 +1211,8 @@ class M_produksi extends Model
     {
         $builder = $this->db->table('operation_list');
         $builder->insert($data);
+        $error = $this->db->error();
+        print_r($error);
         if ($this->db->affectedRows() == 1) {
             return true;
         } else {

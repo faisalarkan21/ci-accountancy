@@ -71,6 +71,7 @@
                                         <thead>
                                             <tr class="table-primary">
                                                 <th scope="col">ID Biaya Bahan</th>
+                                                <th scope="col">Jadwal Produksi</th>
                                                 <th scope="col">Nama Bahan</th>
                                                 <th scope="col">Quantity</th>
                                                 <th scope="col">Total Biaya Bahan</th>
@@ -83,6 +84,8 @@
                                                 <?php foreach($databiayabahan as $row) : ?>
                                                 <td> <?= $row['id_biaya_bahan'];?>
                                                 </td>
+                                                <td> <?= $row['id_jadwal'];?>
+                                                </td>
                                                 <td> <?= $row['nama_bahan'];?>
                                                 </td>
                                                 <td> <?= $row['quantity'];?>
@@ -94,6 +97,7 @@
                                                         data-target="#BayarBiaya" id="btn-bayar"
                                                         data-idbiayabahan="<?= $row['id_biaya_bahan']; ?>"
                                                         data-idbombiaya="<?=$row['id_bom']; ?>"
+                                                        data-idjadwal="<?=$row['id_jadwal']; ?>"
                                                         data-namabahan="<?=$row['nama_bahan']; ?>"
                                                         data-quantity="<?=$row['quantity']; ?>"
                                                         data-kategori="<?= $row['kategori']; ?>"
@@ -128,6 +132,7 @@
                                             <tr class="table-primary">
                                                 <th scope="col">ID Biaya Bahan</th>
                                                 <th scope="col">Nama Bahan</th>
+                                                <th scope="col">Jadwal Produksi</th>
                                                 <th scope="col">Quantity</th>
                                                 <th scope="col">Total Biaya Bahan</th>
                                                 <th scope="col">Kategori</th>
@@ -142,6 +147,8 @@
                                                 <td> <?= $row['id_biaya_bahan'];?>
                                                 </td>
                                                 <td> <?= $row['nama_bahan'];?>
+                                                </td>
+                                                <td> <?= $row['id_jadwal'];?>
                                                 </td>
                                                 <td> <?= $row['quantity'];?>
                                                 </td>
@@ -205,6 +212,17 @@
                                     <?php foreach($selectidbom as $row) : ?>
                                     <option value="<?=$row['id_bom'];?>">
                                         <?=$row['id_bom'];?></option>
+                                    <?php endforeach;  ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-4">ID Jadwal</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" id="rencana_produksi" name="rencana_produksi">
+                                    <?php foreach($selectidjadwal as $row) : ?>
+                                    <option value="<?=$row['rencana_produksi'];?>">
+                                        <?=$row['id_jadwal'];?></option>
                                     <?php endforeach;  ?>
                                 </select>
                             </div>

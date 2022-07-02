@@ -337,7 +337,9 @@
 
     function Table() {
         console.log('tempArray',tempArray)
-        return tempArray.map((v) => 
+        return tempArray.map((v) =>{ 
+            console.log('v', v);
+            return (
             <tr class="text-center">                    
                 <td>{v.id_bom}</td>    
                 <td>{v.nama_product}</td>    
@@ -389,7 +391,7 @@
                     </button>
                                          
                 </td>
-            </tr>
+            </tr>)}
         )
     }
 

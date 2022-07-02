@@ -140,7 +140,7 @@ class Produksi extends Controller
         $data = [];
         $data['validation'] = null;
         $data['userdata'] = $this->dModel->getLoggedInUserData(session()->get('logged_user'));
-        $data['datatenagakerja'] = $this->proModel->getdataTenagaKerja();
+        $data['datatenagakerja'] = $this->proModel->getdataTenagaKerjaList();
         $data['datagaji'] = $this->proModel->getdataGaji();
         $data['getidtenagakerja'] = $this->proModel->get_id_tenaga_kerja();
         $data['getidgaji'] = $this->proModel->get_id_gaji();
@@ -832,15 +832,15 @@ class Produksi extends Controller
         $data['validation'] = null;
         $data['userdata'] = $this->dModel->getLoggedInUserData(session()->get('logged_user'));
         $data['production_details'] = $this->proModel->getDataProductionDetails();
-        $data['datatenagakerja'] = $this->proModel->getdataTenagaKerja();
+        $data['datatenagakerja'] = $this->proModel->getdataTenagaKerjaList();
         $data['databahan'] = $this->proModel->getdataBahan();
         $data['getidbom'] = $this->proModel->get_id_bom();
         $data['selectidbom'] = $this->proModel->union_idbom();
         $data['datarencana'] = $this->proModel->getdataRencana();
 
         $session = session();
-        if ($this->request->getMethod() == 'post') {
-            $rules = [
+        //if ($this->request->getmethod() == 'post') {
+           $rules = [
                 'id_operation' => [
                     'rules' => 'required',
                     'errors' => [
@@ -848,6 +848,7 @@ class Produksi extends Controller
                     ]
                 ],
             ];
+
             if ($this->validate($rules)) {
                 $bomdata = [
                     'id_bom' => $this->request->getVar('id_bom'),
@@ -873,9 +874,10 @@ class Produksi extends Controller
             } else {
                 $data['validation'] = $this->validator;
             }
-        }
+//        }
         return view('produksi/detail_produksi_view', $data);
     }
+
 
     // public function detail_produksi()
     // {
@@ -1408,9 +1410,11 @@ class Produksi extends Controller
         $data['userdata'] = $this->dModel->getLoggedInUserData(session()->get('logged_user'));
         $data['databiayabahan'] = $this->proModel->getdataBiayaBahan();
         $data['databom'] = $this->proModel->getdataBom();
+        // $data['datajadwal'] = $this->proModel->getdataJadwal();
         $data['datahistorybiayabahan'] = $this->proModel->getdataHistoryBiayaBahan();
         $data['getidbiayabahan'] = $this->proModel->get_id_biaya_bahan();
         $data['selectidbom'] = $this->proModel->union_idbom();
+        $data['selectidjadwal'] = $this->proModel->populatedJadwal();
         $data['datacoa'] = $this->proModel->getdataCoa();
 
 
@@ -1430,6 +1434,12 @@ class Produksi extends Controller
                         'required' => 'Kode BOM harus diisi',
                     ]
                 ],
+                'id_jadwal' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Kode Jadwal harus diisi',
+                    ]
+                ],
                 'file_upload' => [
                     'rules' => 'uploaded[file_upload]|mime_in[file_upload,image/JPG,image/jpeg,image/gif,image/png]|max_size[file_upload,4096]',
                     'errors' => [
@@ -1441,6 +1451,7 @@ class Produksi extends Controller
             ];
             if ($this->validate($rules)) {
                 $idbom = $this->request->getVar('id_bom');
+                $rencanaproduksi = $this->request->getVar('rencana_produksi');
                 $namabahanbomdata = $this->proModel->verifyNamaBahanBom($idbom);
                 $idbomquantity = $this->request->getVar('id_bom');
                 $quantitybahanbomdata = $this->proModel->verifyQuantity($idbomquantity);
@@ -2007,7 +2018,7 @@ class Produksi extends Controller
         // $data['databom'] = $this->proModel->union_idbom();
         // $data['dataprodukjadi'] = $this->proModel->getdataProdukJadi();
         $data['getidoperationlist'] = $this->proModel->get_id_operation_list();
-        $data['dataoperationall'] = $this->proModel->getdataOperationAll();
+        $data['dataoperationall'] = $this->proModel->getdataOperationList();
         $data['selectidoperation'] = $this->proModel->union_idoperation();
         $data['datacoa'] = $this->proModel->getdataCoa();
         $data['datarencana'] = $this->proModel->getdataRencana();
@@ -2066,11 +2077,11 @@ class Produksi extends Controller
                 // $upload->move(ROOTPATH.'template/assets/img/bukti-bayar-operation-list');
                 $operationdata = [
                     'id_operation' => $this->request->getVar('id_operation'),
-                    'jenis_tenaga_kerja' => $tenagakerjadata['jenis_tenaga_kerja'],
+                    'id_tenaga_kerja' => $this->request->getVar('id_tenaga_kerja'),
                     // 'produk_jadi' => $produkjadidata['nama_produk'],
                     'nama_produk' => $this->request->getVar('nama_produk'),
                     'quantity' => $this->request->getVar('quantity'),
-                    'tarif' => $tenagakerjadata['tarif'],
+                    // 'tarif' => $tenagakerjadata['tarif'],
                     // 'waktu_pengerjaan' => $durasi->days,
                     // 'total_gaji' => $pekerjaandata['tarif']*$pekerjaandata['target_produksi'],
                     // 'kategori' => $this->request->getVar('kategori'),
@@ -2079,10 +2090,10 @@ class Produksi extends Controller
                 // print_r($operationdata);die();
                 if ($this->proModel->saveOperationList($operationdata)) {
                     $session->setFlashdata('success', 'Data Operation List berhasil diupdate', 3);
-                    return redirect()->to(base_url('produksi/operation_list'));
+                //     return redirect()->to(base_url('produksi/operation_list'));
                 } else {
                     $session->setFlashdata('error', 'Maaf gagal mengupdate silahkan coba lagi', 3);
-                    return redirect()->to(base_url('produksi/operation_list'));
+                    // return redirect()->to(base_url('produksi/operation_list'));
                 }
             } else {
                 $data['validation'] = $this->validator;
@@ -2127,7 +2138,7 @@ class Produksi extends Controller
                 $tenagakerjadata = $this->proModel->verifyTenagaKerja($idtenagakerja);
                 $tambahdata = [
                     'id_operation' => $this->request->getVar('id_operation'),
-                    'jenis_tenaga_kerja' => $tenagakerjadata['jenis_tenaga_kerja'],
+                    'id_tenaga_kerja' => $tenagakerjadata['id_tenaga_kerja'],
                     'nama_produk' => $operationdata['nama_produk'],
                     'quantity' => $operationdata['quantity'],
                     'tarif' => $tenagakerjadata['tarif'],
